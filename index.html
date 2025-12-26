@@ -1,1 +1,150 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Book an Appointment</title>
 
+  <style>
+    body{
+      font-family: Arial, sans-serif;
+      max-width: 920px;
+      margin: 36px auto;
+      padding: 0 16px;
+      line-height: 1.4;
+    }
+    .card{
+      border: 1px solid #e5e5e5;
+      border-radius: 14px;
+      padding: 16px;
+      margin: 16px 0;
+    }
+    .row{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media(max-width:700px){
+      .row{ grid-template-columns: 1fr; }
+    }
+    input, button{
+      padding: 12px;
+      width: 100%;
+      margin: 8px 0;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 15px;
+    }
+    button{
+      cursor: pointer;
+      background: #000;
+      color: #fff;
+    }
+    .btnRow{
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .btnRow a{
+      display: inline-block;
+      padding: 12px 14px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      text-decoration: none;
+      color: #000;
+    }
+    .small{
+      font-size: 13px;
+      color: #444;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>Book Your Appointment</h1>
+<p class="small">
+Chat with our AI assistant for guidance, then book instantly.
+</p>
+
+<div class="card">
+  <h2>Send me the booking link</h2>
+  <p class="small">We’ll email you the booking links instantly.</p>
+
+  <div class="row">
+    <div>
+      <label>Your name</label>
+      <input id="name" placeholder="Name"/>
+    </div>
+    <div>
+      <label>Your email</label>
+      <input id="email" placeholder="Email"/>
+    </div>
+  </div>
+
+  <label>Service (optional)</label>
+  <input id="service" placeholder="e.g., Haircut / Color / Facial"/>
+
+  <button id="sendBtn">Email me the booking links</button>
+  <p id="status" class="small"></p>
+</div>
+
+<div class="card">
+  <h2>Book now</h2>
+  <div class="btnRow">
+    <a href="YOUR_CALENDLY_LINK" target="_blank">Book via Calendly</a>
+    <a href="YOUR_SIMPLYBOOK_LINK" target="_blank">Book via SimplyBook</a>
+  </div>
+</div>
+
+<!-- 🔹 PASTE YOUR CHATBASE EMBED SCRIPT BELOW THIS LINE -->
+<!-- Example:
+<script>
+  (function(){
+    var s=document.createElement("script");
+    s.src="https://www.chatbase.co/embed.min.js";
+    s.setAttribute("chatbotId","YOUR_CHATBASE_ID");
+    document.body.appendChild(s);
+  })();
+</script>
+-->
+
+<script>
+  const ZAPIER_HOOK = "YOUR_ZAPIER_WEBHOOK_URL";
+
+  document.getElementById("sendBtn").addEventListener("click", async () => {
+    const name = document.getElementById("name").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const service = document.getElementById("service").value.trim();
+
+    if (!email.includes("@")) {
+      document.getElementById("status").textContent =
+        "Please enter a valid email.";
+      return;
+    }
+
+    document.getElementById("status").textContent = "Sending…";
+
+    const payload = {
+      name,
+      email,
+      service,
+      source: "github-landing",
+      requested_at: new Date().toISOString()
+    };
+
+    const res = await fetch(ZAPIER_HOOK, {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify(payload)
+    });
+
+    document.getElementById("status").textContent =
+      res.ok
+        ? "Sent! Check your inbox for booking links."
+        : "Error sending. Try again.";
+  });
+</script>
+
+</body>
+</html>
