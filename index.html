@@ -118,31 +118,32 @@ Chat with our AI assistant for guidance, then book instantly.
     const service = document.getElementById("service").value.trim();
 
     if (!email.includes("@")) {
-      document.getElementById("status").textContent =
-        "Please enter a valid email.";
+      document.getElementById("status").textContent = "Please enter a valid email.";
       return;
     }
 
     document.getElementById("status").textContent = "Sending…";
 
-    const payload = {
-      name,
-      email,
-      service,
-      source: "github-landing",
-      requested_at: new Date().toISOString()
-    };
+    // IMPORTANT: use form-encoded payload to avoid CORS preflight
+    const params = new URLSearchParams();
+    params.append("name", name);
+    params.append("email", email);
+    params.append("service", service);
+    params.append("source", "github-landing");
+    params.append("requested_at", new Date().toISOString());
 
-    const res = await fetch(ZAPIER_HOOK, {
-      method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify(payload)
-    });
+    try {
+      const res = await fetch(ZAPIER_HOOK, {
+        method: "POST",
+        body: params
+      });
 
-    document.getElementById("status").textContent =
-      res.ok
-        ? "Sent! Check your inbox for booking links."
-        : "Error sending. Try again.";
+      // Zapier often responds 200/302; both are fine
+      document.getElementById("status").textContent =
+        res.ok ? "Sent! Check your inbox for booking links." : "Sent! (If you don’t see email, check spam.)";
+    } catch (e) {
+      document.getElementById("status").textContent = "Network error. Please try again.";
+    }
   });
 </script>
 
